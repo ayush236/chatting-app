@@ -111,7 +111,9 @@ function formatTime(ts){
         {Messages.map((m) => {
           const mine = m.sender === userName;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div 
+            key={m.id}
+             className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[75%] p-3 rounded-2xl shadow 
                 ${mine ? "bg-green-200" : "bg-white"}`}
