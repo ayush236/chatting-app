@@ -4,13 +4,15 @@ import connectWS from "./WS";
 function App() {
 
 
-  const socket =useRef(null)
+  const socket =useRef(null);
+  const timer = useRef(null);
 
       const[InputName, setInputName] = useState('');
       const[userName, setUserName] = useState('');
       const[showNamePopup, setShowNamePopup] = useState(true);
       const[Messages, setMessages ] = useState([]);
       const[text, settext]= useState('')
+      const[typer, settyper] = useState([]);
   
 
       useEffect(()=>{
@@ -30,11 +32,50 @@ function App() {
 
           })
 
+          socket.current.on('typing', (userName)=>{
+            settyper((prev)=>{
+              const isExit = prev.find((typer) => typer === userName)
+              if (!isExit){
+              return [...prev, userName]
+              }else{
+                return prev;
+              }
+
+            })
+          })
+
+          socket.current.on('stoptyping', (userName)=>{
+            settyper((prev)=> prev.filter((typer) => typer !== userName))
+          })
+
         });
+
+        return ()=>{
+          socket.current.off('joinInfo')
+          socket.current.off('chatMessage')
+          socket.current.off('typing')
+          socket.current.off('stoptyping')
+
+        }
 
 
 
       },[]);
+
+//typer signal
+      useEffect(()=>{
+        if(text){
+          socket.current.emit('typing', userName)
+                    clearTimeout(timer.current)
+        }
+        timer.current = setTimeout(()=>{
+            socket.current.emit('stoptyping', userName)
+          },1000);
+
+          return ()=>{
+            clearTimeout(timer.current)
+          }
+      },[text, userName])
 
 
 //THIS IS FUNCTION IS USED FOR TIME STAMP FOR MESSAGE
@@ -133,7 +174,9 @@ function formatTime(ts){
           </div>
           <div>
             <div className="font-semibold">Realtime Group Chat</div>
-            <div className="text-xs opacity-80 italic">Users are typing…</div>
+            {typer.length ?
+                        <div className="text-xs opacity-80 italic">{typer.join(', ')} typing…</div> : ""
+          }
           </div>
         </div>
         <div className="text-sm">
