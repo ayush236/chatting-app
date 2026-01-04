@@ -30,6 +30,15 @@ io.on('connection',(socket)=>{
    socket.on("chatMessage", (msg)=>{
     socket.to(room).emit('chatMessage', msg)
    }) 
+
+   // typer
+   socket.on("typing", (userName)=>{
+    socket.to(room).emit('typing', userName);
+   })
+
+   socket.on("stoptyping", (userName)=>{
+    socket.to(room).emit('stoptyping', userName);
+   })
 })
 
 app.get('/', (req, res) => {
