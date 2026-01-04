@@ -26,7 +26,7 @@ function App() {
           socket.current.on('chatMessage',(msg)=>{
             //pushing to exitting message
             console.log('msg' ,msg);
-            sendMessage((prev) => [...prev, msg])
+            setMessages((prev) => [...prev, msg])
 
           })
 
@@ -146,6 +146,7 @@ function formatTime(ts){
         {Messages.map((m) => {
           const mine = m.sender === userName;
           return (
+            
             <div 
             key={m.id}
              className={`flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -160,6 +161,8 @@ function formatTime(ts){
                 </div>
               </div>
             </div>
+            
+            
           );
         })}
       </div>
