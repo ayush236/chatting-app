@@ -1,13 +1,40 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import connectWS from "./WS";
 
 function App() {
+
+
+  const socket =useRef(null)
 
       const[InputName, setInputName] = useState('');
       const[userName, setUserName] = useState('');
       const[showNamePopup, setShowNamePopup] = useState(true);
       const[Messages, setMessages ] = useState([]);
-      const[text, settext]= useState([])
+      const[text, settext]= useState('')
   
+
+      useEffect(()=>{
+        socket.current = connectWS();
+
+        socket.current.on("connect", ()=>{
+          socket.current.on('joinInfo',(userName)=>{
+            console.log(`${userName} is joined group`)
+          });
+
+
+
+          socket.current.on('chatMessage',(msg)=>{
+            //pushing to exitting message
+            console.log('msg' ,msg);
+            sendMessage((prev) => [...prev, msg])
+
+          })
+
+        });
+
+
+
+      },[]);
 
 
 //THIS IS FUNCTION IS USED FOR TIME STAMP FOR MESSAGE
@@ -24,6 +51,10 @@ function formatTime(ts){
         e.preventDefault()
         const trimmer = InputName.trim();
         if(!trimmer) return
+
+// adding name 
+          socket.current.emit('joinRoom', trimmer)
+
         setUserName(trimmer);
         setShowNamePopup(false);
 
@@ -42,6 +73,10 @@ function formatTime(ts){
         ts: Date.now()
       };
       setMessages((m)=>[...m, msg]);
+
+      //emit
+      socket.current.emit('chatMessage', msg);
+
       settext('');
     }
 
